@@ -67,61 +67,65 @@ int main() {
         }
     }
 
+    int a = 0;
     map<int, int> tracker;
     int solvedBoardCount;
     int lastBoard;
     int lastDigit;
 
+
     for (int i = 0; i < inputList.size(); i++) {
         for (int j = 0 ; j < boards.size(); j++) {
+                // if board is solved, skip the board 
+            if (tracker[j] == 1) {
+                continue;
+            }
             for (int k = 0; k < boards[j].size(); k++) {
-                for (int l = 0; l < boards[l][k].size(); l++) {
+                for (int l = 0; l < boards[j][k].size(); l++) {
                     // cout << boards[j][k][l].first << endl;
                         // if number called out, pair.second set to 1
                     if (boards[j][k][l].first == stoi(inputList[i])) {
                         boards[j][k][l].second = 1;
                     }
+
                         // bingo column!
                     if (boards[j][0][l].second == 1 && boards[j][1][l].second == 1 && boards[j][2][l].second == 1 && boards[j][3][l].second == 1 && boards[j][4][l].second == 1) {
-                        int boardSum = 0;
-                        for (int m = 0; m < boards[j].size(); m++) {
-                            for (int n = 0; n < boards[j][m].size(); n++) {
-                                if (boards[j][m][n].second == 0) {
-                                    boardSum += boards[j][m][n].first;
-                                }                            
-                            }
-                        }
-                        tracker[j]++;
-                        if (tracker[j] > 0) {
-                            solvedBoardCount++;
-                            cout << "solved: " << solvedBoardCount << endl;
-                        }
-                        if (solvedBoardCount == boards.size() - 1) {
+                        if (tracker[j] != 1) {
+                            cout << "lastDigit before: " << lastDigit << endl;
                             lastDigit = boards[j][k][l].first;
-                            lastBoard = j;
-                            cout << "j: " << j << endl;
+                            cout << "lastDigit after: " << lastDigit << endl;
+                            solvedBoardCount++;
+                            cout << j << " solved: " << solvedBoardCount << endl;
+                            tracker[j]++;
                         }
+
+                        // if (solvedBoardCount == boards.size() - 1) {
+                        //     a = 1;
+                        //     lastDigit = boards[j][k][l].first;
+                        //     lastBoard = j;
+                        //     cout << "j: " << j << endl;
+                        //     break;
+                        // }
                     }
+
                         // bingo row!
                     if (boards[j][k][0].second == 1 && boards[j][k][1].second == 1 && boards[j][k][2].second == 1 && boards[j][k][3].second == 1 && boards[j][k][4].second == 1) {
-                        int boardSum = 0;
-                        for (int m = 0; m < boards[j].size(); m++) {
-                            for (int n = 0; n < boards[j][m].size(); n++) {
-                                if (boards[j][m][n].second == 0) {
-                                    boardSum += boards[j][m][n].first;
-                                }
-                            }
-                        }
-                        tracker[j]++;
-                        if (tracker[j] > 0) {
-                            solvedBoardCount++;
-                            cout << "solved: " << solvedBoardCount << endl;
-                        }
-                        if (solvedBoardCount == boards.size() - 1) {
+                        if (tracker[j] != 1) {
+                            cout << "lastDigit before: " << lastDigit << endl;
                             lastDigit = boards[j][k][l].first;
-                            lastBoard = j;
-                            cout << "j: " << j << endl;
+                            cout << "lastDigit after: " << lastDigit << endl;
+                            solvedBoardCount++;
+                            cout << j << " solved: " << solvedBoardCount << endl;
+                            tracker[j]++;
                         }
+
+                        // if (solvedBoardCount == boards.size() - 1) {
+                        //     a = 1;
+                        //     lastDigit = boards[j][k][l].first;
+                        //     lastBoard = j;
+                        //     cout << "j: " << j << endl;
+                        //     break;
+                        // }
                     }
                 }
             }
@@ -129,14 +133,12 @@ int main() {
     }
 
     int boardSum = 0;
-    for (int m = 0; m < boards[lastBoard].size(); m++) {
-        for (int n = 0; n < boards[lastBoard][m].size(); n++) {
-            if (boards[lastBoard][m][n].second == 0) {
-                boardSum += boards[lastBoard][m][n].first;
+    for (int i = 0; i < 5; i++) {
+        for (int j = 0; j < 5; j++) {
+            if (boards[31][i][j].second != 1) {
+                boardSum += boards[31][i][j].first;
             }
         }
     }
     cout << boardSum * lastDigit << endl;
-
-
 }
