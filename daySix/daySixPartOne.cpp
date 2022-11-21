@@ -21,8 +21,7 @@ int main() {
         list.push_back((int)(input[i]) - '0');
     }
 
-    for (int i = 0; i < 256; i++) {
-        cout << i << endl;
+    for (int i = 0; i < 80; i++) {
         int initialSize = list.size();
         for (int j = 0; j < initialSize; j++) {
             --list[j];

@@ -7,6 +7,5 @@
 using namespace std;
 
 int main() {
-    uint64_t fish[9] = { 0, };
-
+    int arr[] = {0, 1, 2, 3, 4, 5};
 }
