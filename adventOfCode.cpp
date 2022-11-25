@@ -9,6 +9,7 @@
 #include <sstream>
 #include <cmath>
 #include <iomanip>
+#include <queue>
 
 using namespace std;
 
@@ -57,7 +58,6 @@ void d2p2() {
 
     cout << x * y;
 }
-
 int convert(long long n) {
   int dec = 0, i = 0, rem;
 
@@ -859,7 +859,6 @@ void d8p2() { // solve puzzle
 }
 
 void d9p1() {
-    cout << "Here" << endl;
     fstream file("input.in");
     vector<string> heightMap;
     vector<char> solCells;
@@ -867,7 +866,6 @@ void d9p1() {
 
     string line;
     while(getline(file, line)) {
-        cout << line << endl;
         heightMap.push_back(line);
     }
 
@@ -877,32 +875,116 @@ void d9p1() {
                 continue;
             }
 
-            int sum = 0;
+            int sum = 0, sumRequirement = 4;
             for (int k = 0; k < 4; k++) {
                 int nx = j + dir[k], ny = i + dir[k + 1];
                 if (nx < 0 || nx == heightMap[i].size() || ny < 0 || ny == heightMap.size()) {
+                    sumRequirement--;
                     continue;
                 }
+                
 
                 if (heightMap[ny][nx] > heightMap[i][j]) {
                     sum++;
                 }
             }
             
-            if (sum == 4) {
+            if (sum == sumRequirement) {
                 solCells.push_back(heightMap[i][j]);
             }
         }
     }
 
-    int solution;
+    int solution = 0;
     for (char c : solCells) {
-        solution += c - '0';
+        cout << c - '0' << endl;
+        solution += c - '0' + 1;
     }
     
     cout << solution << endl;
 }
 
+// bfs?
+void d9p2() {
+    fstream file("input.in");
+    vector<string> heightMap;
+    queue<pair<int, int> > q;
+    int basinCount;
+    vector<int> basinSums;
+    vector<vector<int> > checked;
+    vector<int> dir = {0, 1, 0, -1, 0};
+
+    string line;
+    while(getline(file, line)) {
+        heightMap.push_back(line);
+    }
+
+        // initialize checked 2d vector
+    for (int i = 0; i < heightMap.size(); i++) {
+        checked.push_back(vector<int> (heightMap[i].size()));
+    }
+
+    for (int i = 0; i < heightMap.size(); i++) {
+        for (int j = 0; j < heightMap[i].size(); j++) {
+            if (heightMap[i][j] == '9') {
+                continue;
+            }
+
+            int sum = 0, sumRequirement = 4;
+            for (int k = 0; k < 4; k++) {
+                int nx = j + dir[k], ny = i + dir[k + 1];
+                if (nx < 0 || nx == heightMap[i].size() || ny < 0 || ny == heightMap.size()) {
+                    sumRequirement--;
+                    continue;
+                }  
+
+                if (heightMap[ny][nx] > heightMap[i][j]) {
+                    sum++;
+                }
+            }
+            
+            basinCount = 0;
+                // if cell is a low point, perform bfs
+            if (sum == sumRequirement) {
+                q.emplace(i, j);
+                basinCount++;
+                checked[i][j] = 1;
+
+                    // bfs here to organize by lowest points
+                while (!q.empty()) {
+                    auto [i, j] = q.front(); q.pop();
+                    cout << "i,j: " << heightMap[i][j] << endl;
+                    for (int k = 0; k < 4; k++) {
+                        int nx = j + dir[k], ny = i + dir[k + 1];
+                            // check if cell is off the map or is a boundary (less than or 9)
+                        if (nx < 0 || nx == heightMap[i].size() || ny < 0 || ny == heightMap.size() || heightMap[ny][nx] < heightMap[i][j] || heightMap[ny][nx] == '9' || checked[ny][nx] != 0) {
+                            continue;
+                        }
+                        cout << ny << ", " << nx << ": " << heightMap[ny][nx] << endl;
+                        q.emplace(ny, nx);
+                        basinCount++;
+                        checked[ny][nx] = 1;
+                    }
+                }
+
+                cout << "basinCount: " << basinCount << endl;
+                basinSums.push_back(basinCount);
+            }
+        }
+    }
+
+    int size = basinSums.size();
+    int solution;
+    nth_element(basinSums.begin(), basinSums.begin() + size - 1, basinSums.end());
+    nth_element(basinSums.begin(), basinSums.begin() + size - 2, basinSums.end());
+    nth_element(basinSums.begin(), basinSums.begin() + size - 3, basinSums.end());
+    cout << basinSums[size - 1] << ", " << basinSums[size - 2] << ", " << basinSums[size - 3] << endl;
+
+    solution += basinSums[size - 1] * basinSums[size - 2] * basinSums[size - 3];
+
+    cout << solution << endl;
+}
+
 int main() {
-    d9p1();
+    d9p2();
 }
