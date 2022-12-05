@@ -10,6 +10,7 @@
 #include <cmath>
 #include <iomanip>
 #include <queue>
+#include <deque>
 
 using namespace std;
 
@@ -1228,6 +1229,173 @@ void d3p2() {
     cout << sum;
 }
 
+void d4p1() {
+    fstream file("input.in");
+    
+    string line;
+
+    int counter = 0;
+
+    while (getline(file, line)) {
+        line.replace(line.find("-"), 1, " ");
+        line.replace(line.find("-"), 1, " ");
+        line.replace(line.find(","), 1, " ");
+
+        stringstream ss(line);
+
+        int input;
+        vector<int> ranges;
+
+        while (ss >> input) {
+            ranges.push_back(input);
+        }
+
+        if (((ranges[0] <= ranges[2]) && (ranges[1] >= ranges[3])) || ((ranges[0] >= ranges[2]) && (ranges[1] <= ranges[3]))) {
+            counter++;
+        } 
+    }
+
+    cout << counter;
+}
+
+void d4p2() {
+    fstream file("input.in");
+    
+    string line;
+
+    int counter = 0;
+
+    while (getline(file, line)) {
+        line.replace(line.find("-"), 1, " ");
+        line.replace(line.find("-"), 1, " ");
+        line.replace(line.find(","), 1, " ");
+
+        stringstream ss(line);
+
+        int input;
+        vector<int> ranges;
+
+        while (ss >> input) {
+            ranges.push_back(input);
+        }
+
+        for (auto a : ranges) {
+            cout << a << " ";
+        }
+
+        cout << endl;
+
+        if (((ranges[0] <= ranges[2]) && (ranges[1] >= ranges[3])) || ((ranges[0] >= ranges[2]) && (ranges[1] <= ranges[3]))) {
+            counter++;
+            cout << counter << endl;
+        } else if (((ranges[0] >= ranges[2]) && (ranges[0] <= ranges[3])) || ((ranges[2] <= ranges[1]) && (ranges[2] >= ranges[0]))) {
+            counter++;
+            cout << counter << endl;
+        }
+        cout << endl;
+    }
+
+    cout << counter;
+}
+
+void d5p1() {
+    fstream file("input.in");
+    vector<deque<char> > crates(9);
+
+    string line;
+
+    while (getline(file, line)) {
+        if (line == "") {
+            break;
+        }
+
+        for (int i = 0; i < 9; i++) {
+            int pos = i * 4 + 1;
+            
+            if (line[pos] == ' ') {
+                continue;
+            }
+            crates[i].push_back(line[pos]);
+        }
+    }
+
+    line = "continue";
+
+    while (getline(file, line)) {
+        line.erase(line.find("move"), 5);
+        line.erase(line.find("from"), 5);
+        line.erase(line.find("to"), 3);
+
+        stringstream ss(line);
+
+        int amt, from, to;
+        while (ss >> amt >> from >> to) {
+            from--; to--;
+            for (int i = 0; i < amt; i++) {
+                crates[to].push_front(crates[from].front());
+                crates[from].pop_front();
+            }
+        }
+    }
+
+    cout << "result: " << endl;
+
+    for (auto i : crates) {
+        for (auto j : i) {
+            cout << j << " ";
+        }
+        cout << endl;
+    }
+}
+
+void d5p2() {
+    fstream file("input.in");
+    vector<deque<char> > crates(9);
+
+    string line;
+
+    while (getline(file, line)) {
+        if (line == "") {
+            break;
+        }
+
+        for (int i = 0; i < 9; i++) {
+            int pos = i * 4 + 1;
+            
+            if (line[pos] == ' ') {
+                continue;
+            }
+            crates[i].push_back(line[pos]);
+        }
+    }
+
+    line = "continue";
+
+    while (getline(file, line)) {
+        line.erase(line.find("move"), 5);
+        line.erase(line.find("from"), 5);
+        line.erase(line.find("to"), 3);
+
+        stringstream ss(line);
+
+        int amt, from, to;
+        while (ss >> amt >> from >> to) {
+            from--; to--;
+
+            for (int i = amt - 1; i >= 0; i--) {
+                crates[to].push_front(crates[from][i]);
+                crates[from].erase(crates[from].begin() + i);
+            }
+        }
+    }
+
+    cout << "result: " << endl;
+
+    for (auto i : crates) {
+        cout << i.front();
+    }
+}
+
 int main() {
-    d3p2();
+    d5p2();
 }
