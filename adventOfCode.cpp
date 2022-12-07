@@ -1396,6 +1396,28 @@ void d5p2() {
     }
 }
 
+void d6p1() {
+    fstream file("input.in");
+    unordered_map<char, int> tracker;
+
+    string line; getline(file, line);
+
+    for (int i = 0; i < line.size(); i++) {
+        tracker[line[i]]++;
+        
+        if (tracker.size() == 14) {
+            cout << i + 1 << endl;
+            break;
+        }
+
+        if (i > 12) {
+            tracker[line[i - 13]]--;
+            if (tracker[line[i - 13]] == 0) {
+                tracker.erase(line[i - 13]);
+            }
+        }
+    }
+}
 int main() {
-    d5p2();
+    d6p1();
 }
