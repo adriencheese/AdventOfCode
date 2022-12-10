@@ -447,6 +447,315 @@ void d6p1() {
     }
 }
 
+void d8p1() { // dp with 2d vector of 4 values (top, bottom, left, right)
+                // from top left, fill in values of top and left
+                // from bottom bottom right, fill in values of bottom and right
+                // by comparing neighboring coordinates with respective direction
+    ifstream file("input.in");
+    vector<vector<int> > forest;
+    int sol = 0;
+
+    string line;
+
+    int row = 0;
+    while (getline(file, line)) {
+        forest.push_back(vector<int>());
+        for (char i : line) {
+            forest[row].push_back(i - '0');
+        }
+        row++;
+    }
+
+    int xMax = forest[0].size();
+    int yMax = forest.size();
+
+    vector<vector<tuple<string, int, int> > > dp(yMax, vector<tuple<string, int, int> > (xMax, tuple("", 0, 0)));
+// get<1> west - east
+// get<2> north - south
+
+    // from top left
+    for (int x = 0; x < xMax; x++) { 
+        for (int y = 0; y < yMax; y++) {
+
+            if (y == 0 || x == 0) { // is there a better way to do this?
+                if (y == 0) { // north border
+                    get<0>(dp[y][x]).append("N");
+                    get<2>(dp[y][x]) = forest[y][x];
+                }
+                if (x == 0) { // west border
+                    get<0>(dp[y][x]).append("W");
+                    get<1>(dp[y][x]) = forest[y][x];
+                }
+                continue;
+            }
+
+            if (get<1>(dp[y][x - 1]) < forest[y][x]) {
+                get<0>(dp[y][x]).append("W");
+            }
+            get<1>(dp[y][x]) = max(forest[y][x], get<1>(dp[y][x - 1]));
+
+            if (get<2>(dp[y - 1][x]) < forest[y][x]) {
+                get<0>(dp[y][x]).append("N");
+            }
+            get<2>(dp[y][x]) = max(forest[y][x], get<2>(dp[y - 1][x]));
+        }
+    }
+
+    for (int x = xMax - 1; x >= 0; x--) {
+        for (int y = yMax - 1; y >= 0; y--) {
+            if (y == yMax - 1 || x == xMax - 1) { // is there a better way to do this?
+                if (y == yMax - 1) { // south border
+                    get<0>(dp[y][x]).append("S");
+                    get<2>(dp[y][x]) = forest[y][x];
+                }
+                if (x == xMax - 1) { // east border
+                    get<0>(dp[y][x]).append("E");
+                    get<1>(dp[y][x]) = forest[y][x];
+                }
+                continue;
+            }
+
+            if (get<2>(dp[y + 1][x]) < forest[y][x]) {
+                get<0>(dp[y][x]).append("S");
+            }
+            get<2>(dp[y][x]) = max(forest[y][x], get<2>(dp[y + 1][x]));
+
+            if (get<1>(dp[y][x + 1]) < forest[y][x]) {
+                get<0>(dp[y][x]).append("E");
+            }
+            get<1>(dp[y][x]) = max(forest[y][x], get<1>(dp[y][x + 1]));
+        }
+    }
+    for (int x = 0; x < xMax; x++) {
+        for (int y = 0; y < yMax; y++) {
+            if (!get<0>(dp[y][x]).empty()) {
+                sol++;
+            }
+        }
+    }
+
+    cout << sol;
+}
+
+int d8p2findScore(const vector<vector<int> > &forest, int x, int y) {
+    int xMax = forest[0].size();
+    int yMax = forest.size();
+
+    int N = 0, S = 0, E = 0, W = 0;
+
+    for (int i = 1; i <= y; i++) { // check top
+        // cout << "top: " << forest[y - i][x] << " - " << forest[y][x] << endl;
+        if (forest[y - i][x] < forest[y][x]) {
+            N++;
+        } else if (forest[y - i][x] >= forest[y][x]) {
+            N++;
+            break;
+        } else {
+            break;
+        }
+        // cout << N << endl;
+    }
+
+    for (int i = 1; i <= (yMax - 1 - y); i++) { // check south
+        // cout << "south: " << forest[y + i][x] << " - " << forest[y][x] << endl;
+        if (forest[y + i][x] < forest[y][x]) {
+            S++;
+        } else if (forest[y + i][x] >= forest[y][x]) {
+            S++;
+            break;
+        } else {
+            break;
+        }
+        // cout << S << endl;
+    }
+
+    for (int i = 1; i <= (xMax - 1 - x); i++) { // check east
+        // cout << "east: " << forest[y][x + i] << " - " << forest[y][x] << endl;
+        if (forest[y][x + i] < forest[y][x]) {
+            E++;
+        } else if (forest[y][x + i] >= forest[y][x]) {
+            E++;
+            break;
+        } else {
+            break;
+        }
+        // cout << E << endl;
+    }
+    
+    for (int i = 1; i <= x; i++) { // check west
+        // cout << "west: " << forest[y][x - i] << " - " << forest[y][x] << endl;
+        if (forest[y][x - i] < forest[y][x]) {
+            W++;
+        } else if (forest[y][x - i] >= forest[y][x]) {
+            W++;
+            break;
+        } else {
+            break;
+        }
+        // cout << W << endl;
+    }
+
+    // cout << N << ", " << S << ", " << W << ", " << E << endl;
+
+    return (N * S * W * E);
+}
+
+void d8p2() {
+    ifstream file("input.in");
+    vector<vector<int> > forest;
+    int sol = INT_MIN;
+
+    string line;
+
+    int row = 0;
+    while (getline(file, line)) {
+        forest.push_back(vector<int>());
+        for (char i : line) {
+            forest[row].push_back(i - '0');
+        }
+        row++;
+    }
+
+    int xMax = forest[0].size();
+    int yMax = forest.size();
+
+    for (int i = 1; i < yMax - 1; i++) {
+        for (int j = 1; j < xMax - 1; j++) {
+            // cout << j << ", " << i << " - " << forest[i][j] << endl;
+            int score = d8p2findScore(forest, j, i);
+            // cout << "result: " << j << ", " << i << " - " << score << endl;
+            if (score > sol) {
+                sol = score;
+            }
+            // cout << endl;
+        }
+    }
+    cout << sol;
+}
+
+struct hash_pair {
+    template <class T1, class T2>
+    size_t operator()(const pair<T1, T2>& p) const
+    {
+        auto hash1 = hash<T1>{}(p.first);
+        auto hash2 = hash<T2>{}(p.second);
+ 
+        if (hash1 != hash2) {
+            return hash1 ^ hash2;             
+        }
+         
+        // If hash1 == hash2, their XOR is zero.
+          return hash1;
+    }
+};
+
+void d9p1() { // get 3 under the correct solution
+    ifstream file("input.in");
+    // vector<vector<char> > board (5, vector<char> (5, ' '));
+    unordered_map<pair<int, int>, int, hash_pair> coordinates;
+
+    string line;
+    pair<int, int> head (0, 0);
+    pair<int, int> tail (0, 0);
+    
+    char lastDir = ' ';
+
+    while (getline(file, line)) {
+        char dir = line[0];
+        int count = stoi(line.substr(line.find(" ") + 1));
+
+        if (dir == 'R') {
+            for (int i = 0; i < count; i++) {
+                head.first++;
+                
+                if (abs(head.second - tail.second) > 1 || abs(head.first - tail.first) > 1) {
+                    tail.first++;
+
+                    if (head.second != tail.second && head.first != tail.first) {
+                        if (lastDir == 'U') {
+                            tail.second--;
+                        } else if (lastDir == 'D') {
+                            tail.second++;
+                        }
+                    }
+                }
+
+                coordinates[tail]++;
+                // cout << "Rhead(" << head.first << ", " << head.second << "), tail(" << tail.first << ", " << tail.second << ")" << endl;
+
+            }
+        } else if (dir == 'U') {
+            for (int i = 0; i < count; i++) {
+                head.second--;
+                
+                if (abs(head.second - tail.second) > 1 || abs(head.first - tail.first) > 1) {
+                    tail.second--;
+
+                    if (head.second != tail.second && head.first != tail.first) {
+                        if (lastDir == 'L') {
+                            tail.first--;
+                        } else if (lastDir == 'R') {
+                            tail.first++;
+                        }   
+                    }
+                }
+
+                coordinates[tail]++;
+                // cout << "Uhead(" << head.first << ", " << head.second << "), tail(" << tail.first << ", " << tail.second << ")" << endl;
+            }
+        } else if (dir == 'L') {
+            for (int i = 0; i < count; i++) {
+                head.first--;
+                
+                if (abs(head.second - tail.second) > 1 || abs(head.first - tail.first) > 1) {
+                    tail.first--;
+
+                    if (head.second != tail.second && head.first != tail.first) {
+                        if (lastDir == 'U') {
+                            tail.second--;
+                        } else if (lastDir == 'D') {
+                            tail.second++;
+                        }
+                    }
+                }
+
+                coordinates[tail]++;
+                // cout << "Lhead(" << head.first << ", " << head.second << "), tail(" << tail.first << ", " << tail.second << ")" << endl;
+
+            }
+        } else if (dir == 'D') { // D
+            for (int i = 0; i < count; i++) {
+                head.second++;
+                
+                if (abs(head.second - tail.second) > 1 || abs(head.first - tail.first) > 1) {
+                    tail.second++;
+
+                    if (head.second != tail.second && head.first != tail.first) {
+                        if (lastDir == 'L') {
+                            tail.first--;
+                        } else if (lastDir == 'R') {
+                            tail.first++;
+                        }   
+                    }
+                }
+
+                coordinates[tail]++;
+                // cout << "Dhead(" << head.first << ", " << head.second << "), tail(" << tail.first << ", " << tail.second << ")" << endl;
+
+            }
+        }
+        
+        lastDir = dir;
+        // cout << "head(" << head.first << ", " << head.second << "), tail(" << tail.first << ", " << tail.second << ")" << endl;
+    }
+
+    // for (auto i : coordinates) {
+    //     cout << "coord: " << i.first.first << ", " << i.first.second << endl;
+    // }
+
+    cout << coordinates.size() << endl;
+}
+
 int main() {
-    d7p1();
+    d9p1();
 }

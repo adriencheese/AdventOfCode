@@ -4,6 +4,7 @@
 #include <string>
 #include <memory>
 #include <queue>
+#include <unordered_map>
 
 using namespace std;
 
@@ -64,11 +65,8 @@ size_t directorySize(Directory *head) {
     return sum;
 }
 
-size_t bfs(Directory *head) {
-    if (head->subDirectories.empty()) {
-        // cout << "subDirectories.size(): " << head->subDirectories.size() << endl;
-        return head->size;
-    }
+unordered_map<string, long long> bfs(Directory *head) {
+    unordered_map<string, long long> umap;
 
     size_t sum = 0;
     queue<Directory*> unvisited;
@@ -83,9 +81,7 @@ size_t bfs(Directory *head) {
 
         // cout << "name: " << temp->name << " - size: " << dirSize << endl;
         
-        if (dirSize <= 100000) {
-            sum += dirSize;
-        }
+        umap[temp->name] += dirSize;
 
         if (!temp->subDirectories.empty()) {
             for (auto i : temp->subDirectories) {
@@ -94,7 +90,23 @@ size_t bfs(Directory *head) {
         }
     }
 
-    return sum;
+    return umap;
+}
+
+void findSmallestDirectory(unordered_map<string, long long> &umap) {
+    size_t rootSize = umap["/"];
+
+    size_t necessarySize = 30000000 - (70000000 - rootSize);
+
+    size_t smallestSize = INT_MAX;
+
+    for (auto i : umap) {
+        if (i.second > necessarySize && i.second < smallestSize) {
+            smallestSize = i.second;
+        }
+    }
+
+    cout << "small: " << smallestSize << endl;
 }
 
 int main() {
@@ -138,5 +150,14 @@ int main() {
         currentDir->size += stoi(line.substr(0, line.find(" ")));
     }
     
-    cout << bfs(&home);
+    unordered_map<string, long long> umap = bfs(&home);
+
+    findSmallestDirectory(umap);
+
+    size_t rootSize = umap["/"];
+    cout << "rootsize: " << rootSize << endl;
+
+    // for (auto i : umap) {
+    //     int available = 70000000 - i.second;
+    // }
 }
